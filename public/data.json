@@ -1,0 +1,7 @@
+[
+    {"x": 30, "y": 20, "z": 1, "image": "images/172.jpg", "caption": "Caption for image 1"},
+    {"x": 50, "y": 90, "z": 2, "image": "images/173.jpg", "caption": "Caption for image 2"},
+    {"x": 80, "y": 50, "z": 3, "image": "images/174.jpg", "caption": "Caption for image 3"},
+    {"x": 60, "y": 120, "z": 4, "image": "images/175.jpg", "caption": "Caption for image 4"},
+    {"x": 90, "y": 80, "z": 5, "image": "images/176.jpg", "caption": "Caption for image 5"}
+]
