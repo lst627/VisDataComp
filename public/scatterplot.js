@@ -2,8 +2,8 @@
 d3.json("data.json").then(data => {
 
     const margin = {top: 20, right: 20, bottom: 30, left: 40};
-    const width = 960 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
+    const width = 800 - margin.left - margin.right;
+    const height = 600 - margin.top - margin.bottom;
 
     const x = d3.scaleLinear()
         .domain(d3.extent(data, d => d.x))
@@ -22,11 +22,21 @@ d3.json("data.json").then(data => {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    svg.append("g")
+    // Create a clip path to prevent dots from being drawn outside the chart area
+    svg.append("defs").append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
+
+    const scatter = svg.append("g")
+        .attr("clip-path", "url(#clip)");
+
+    const xAxis = svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x));
 
-    svg.append("g")
+    const yAxis = svg.append("g")
         .call(d3.axisLeft(y));
 
     // Create a tooltip div that is hidden by default
@@ -38,16 +48,15 @@ d3.json("data.json").then(data => {
     const imageElement = d3.select("#selectedImage");
     const captionElement = d3.select("#imageCaption");
 
-    svg.selectAll(".dot")
+    scatter.selectAll(".dot")
         .data(data)
         .enter().append("circle")
         .attr("class", "dot")
         .attr("cx", d => x(d.x))
         .attr("cy", d => y(d.y))
-        .attr("r", 5)
+        .attr("r", 4)
         .style("fill", d => z(d.z))
         .on("mouseover", function(event, d) {
-            d3.select(this).style("cursor", "pointer"); 
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
@@ -56,7 +65,6 @@ d3.json("data.json").then(data => {
                 .style("top", (event.pageY - 28) + "px");
         })
         .on("mouseout", function(d) {
-            d3.select(this).style("cursor", "default"); 
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
@@ -66,6 +74,26 @@ d3.json("data.json").then(data => {
             imageElement.attr("src", d.image);
             captionElement.text(d.caption);
         });
+
+    // Zoom function
+    const zoom = d3.zoom()
+        .scaleExtent([0.5, 20])
+        .extent([[0, 0], [width, height]])
+        .on("zoom", zoomed);
+
+    function zoomed(event) {
+        // create new scale ojects based on event
+        const newX = event.transform.rescaleX(x);
+        const newY = event.transform.rescaleY(y);
+        // update axes
+        xAxis.call(d3.axisBottom(newX));
+        yAxis.call(d3.axisLeft(newY));
+        scatter.selectAll("circle")
+            .attr("cx", d => newX(d.x))
+            .attr("cy", d => newY(d.y));
+    }
+
+    svg.call(zoom);
 
 }).catch(error => {
     console.error("Error loading the data: ", error);
