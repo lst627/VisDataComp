@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Scatter Plot with D3.js</title>
+    <title>Filtering Methods for DataComp</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .chart {
@@ -45,9 +45,20 @@
             margin-top: 10px;
             font: 14px sans-serif;
         }
+        #filterContainer {
+            width: 100%;
+            margin: 20px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <div id="filterContainer">
+        <label for="CLIP score Filter">Filter by CLIP score:</label>
+        <span id="Left CLIP score">0</span>
+        <input type="range" id="CLIP score Filter" name="CLIP score Filter" min="0" max="50" step="1" value="25">
+        <span id="Right CLIP score">50</span>
+    </div>
     <div class="container">
         <div id="scatterPlot"></div>
         <div id="imageContainer">

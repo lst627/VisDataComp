@@ -2,8 +2,8 @@
 d3.json("data.json").then(data => {
 
     const margin = {top: 20, right: 20, bottom: 30, left: 40};
-    const width = 800 - margin.left - margin.right;
-    const height = 600 - margin.top - margin.bottom;
+    const width = 750 - margin.left - margin.right;
+    const height = 500 - margin.top - margin.bottom;
 
     const x = d3.scaleLinear()
         .domain(d3.extent(data, d => d.x))
@@ -48,32 +48,50 @@ d3.json("data.json").then(data => {
     const imageElement = d3.select("#selectedImage");
     const captionElement = d3.select("#imageCaption");
 
-    scatter.selectAll(".dot")
-        .data(data)
-        .enter().append("circle")
-        .attr("class", "dot")
-        .attr("cx", d => x(d.x))
-        .attr("cy", d => y(d.y))
-        .attr("r", 4)
-        .style("fill", d => z(d.z))
-        .on("mouseover", function(event, d) {
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", .9);
-            tooltip.html(`x: ${d.x}<br/>y: ${d.y}<br/>z: ${d.z}`)
-                .style("left", (event.pageX + 5) + "px")
-                .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mouseout", function(d) {
-            tooltip.transition()
-                .duration(500)
-                .style("opacity", 0);
-        })
-        .on("click", function(event, d) {
-            // Update the src attribute of the image element and the text content of the caption element
-            imageElement.attr("src", d.image);
-            captionElement.text(d.caption);
-        });
+    function updatePlot(filteredData) {
+        // Bind data to circles
+        const dots = scatter.selectAll(".dot")
+            .data(filteredData, d => d.x + ":" + d.y);
+
+        // Remove exiting elements
+        dots.exit().remove();
+        
+        dots.enter().append("circle")
+            .attr("class", "dot")
+            .attr("class", "dot")
+            .attr("cx", d => x(d.x))
+            .attr("cy", d => y(d.y))
+            .attr("r", 4)
+            .style("fill", d => z(d.z))
+            .on("mouseover", function(event, d) {
+                d3.select(this).style("cursor", "pointer"); 
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`x: ${d.x}<br/>y: ${d.y}<br/>CLIP score: ${d.z}`)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                d3.select(this).style("cursor", "default"); 
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            })
+            .on("click", function(event, d) {
+                // Update the src attribute of the image element and the text content of the caption element
+                imageElement.attr("src", d.image);
+                captionElement.text(d.caption);
+            });
+
+            // Update existing elements
+            dots.attr("cx", d => x(d.x))
+            .attr("cy", d => y(d.y))
+            .style("fill", d => z(d.z));
+    }
+    
+    // Initial plot update
+    updatePlot(data);
 
     // Zoom function
     const zoom = d3.zoom()
@@ -94,6 +112,14 @@ d3.json("data.json").then(data => {
     }
 
     svg.call(zoom);
+
+     // Filter function
+     const zFilter = document.getElementById("CLIP score Filter");
+     zFilter.addEventListener("input", function() {
+         const maxZ = +zFilter.value;
+         const filteredData = data.filter(d => d.z >= maxZ);
+         updatePlot(filteredData);
+     });
 
 }).catch(error => {
     console.error("Error loading the data: ", error);
