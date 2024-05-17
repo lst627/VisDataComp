@@ -1,5 +1,5 @@
 // Fetch the data from the JSON file
-d3.json("data.json").then(data => {
+d3.json("data-bert.json").then(data => {
 
     const margin = {top: 20, right: 20, bottom: 30, left: 40};
     const width = 750 - margin.left - margin.right;
