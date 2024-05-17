@@ -1,5 +1,5 @@
 // Fetch the data from the JSON file
-d3.json("data-bert.json").then(data => {
+d3.json("data-clip.json").then(data => {
 
     const margin = {top: 20, right: 20, bottom: 30, left: 40};
     const width = 750 - margin.left - margin.right;
@@ -61,7 +61,7 @@ d3.json("data-bert.json").then(data => {
             .attr("class", "dot")
             .attr("cx", d => x(d.x))
             .attr("cy", d => y(d.y))
-            .attr("r", 4)
+            .attr("r", 2)
             .style("fill", d => z(d.z))
             .on("mouseover", function(event, d) {
                 d3.select(this).style("cursor", "pointer"); 

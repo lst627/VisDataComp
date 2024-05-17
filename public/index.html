@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Filtering Methods for DataComp</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="tufte.css"/>
     <style>
         .chart {
             display: block;
@@ -53,18 +54,19 @@
     </style>
 </head>
 <body>
-    <div id="filterContainer">
-        <label for="CLIP score Filter">Filter by CLIP score:</label>
-        <span id="Left CLIP score">0</span>
-        <input type="range" id="CLIP score Filter" name="CLIP score Filter" min="0" max="50" step="1" value="25">
-        <span id="Right CLIP score">50</span>
-    </div>
+    <h1>Filtering Methods for DataComp</h1>
     <div class="container">
         <div id="scatterPlot"></div>
         <div id="imageContainer">
             <img id="selectedImage" src="">
             <div id="imageCaption">Click a dot to display an image and its caption</div>
         </div>
+    </div>
+    <div id="filterContainer">
+        <label for="CLIP score Filter">Filter by CLIP score:</label>
+        <span id="Left CLIP score">0</span>
+        <input type="range" id="CLIP score Filter" name="CLIP score Filter" min="0" max="50" step="1" value="25">
+        <span id="Right CLIP score">50</span>
     </div>
     <script src="scatterplot.js"></script>
 </body>
