@@ -63,10 +63,18 @@
         </div>
     </div>
     <div id="filterContainer">
+        <div>
         <label for="CLIP score Filter">Filter by CLIP score:</label>
         <span id="Left CLIP score">0</span>
         <input type="range" id="CLIP score Filter" name="CLIP score Filter" min="0" max="50" step="1" value="25">
         <span id="Right CLIP score">50</span>
+        </div>
+        <div>
+        <label for="caption length Filter">Filter by caption length:</label>
+        <span id="Left caption length">0</span>
+        <input type="range" id="caption length Filter" name="caption length Filter" min="0" max="200" step="10" value="100">
+        <span id="Right caption length">200</span>
+        </div>
     </div>
     <script src="scatterplot.js"></script>
 </body>

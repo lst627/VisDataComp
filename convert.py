@@ -2,11 +2,12 @@ import csv
 
 # Open the CSV file
 data = []
-with open('bertdata.csv', 'r') as file:
+with open('data.csv', 'r') as file:
     # Create a CSV reader object
     reader = csv.reader(file)
     # Iterate over each row in the CSV file
     next(reader)  # Skip the header row
+    max_length = 0
     for row in reader:
         # Process the data in each row
         if len(row) < 4: continue
@@ -18,9 +19,13 @@ with open('bertdata.csv', 'r') as file:
             "y": float(tsne_data[1]), 
             "z": float(row[3]), 
             "image": "images/"+row[0]+".jpg", 
-            "caption": row[1]}))
+            "caption": row[1],
+            "caption_length": len(row[1]),
+        }))
+        max_length = max(max_length, len(row[1]))
+
 
 import json
 
-with open("datacomp-bert.json", 'w') as outfile:
+with open("data-clip.json", 'w') as outfile:
     json.dump(data, outfile)

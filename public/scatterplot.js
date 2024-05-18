@@ -90,8 +90,19 @@ d3.json("data-clip.json").then(data => {
             .style("fill", d => z(d.z));
     }
     
+    const zFilter = document.getElementById("CLIP score Filter");
+    const captionLengthFilter = document.getElementById("caption length Filter");
+    function filterUpdate() {
+        const maxZ = +zFilter.value;
+        const maxCaptionLength = +captionLengthFilter.value;
+        console.log(maxZ);
+        console.log(maxCaptionLength);
+        const filteredData = data.filter(d => (d.z >= maxZ) && (d.caption_length <= maxCaptionLength));
+        updatePlot(filteredData);
+    }
     // Initial plot update
-    updatePlot(data);
+    // updatePlot(data);
+    filterUpdate();
 
     // Zoom function
     const zoom = d3.zoom()
@@ -113,13 +124,9 @@ d3.json("data-clip.json").then(data => {
 
     svg.call(zoom);
 
-     // Filter function
-     const zFilter = document.getElementById("CLIP score Filter");
-     zFilter.addEventListener("input", function() {
-         const maxZ = +zFilter.value;
-         const filteredData = data.filter(d => d.z >= maxZ);
-         updatePlot(filteredData);
-     });
+    // Filter function
+    zFilter.addEventListener("input", filterUpdate);
+    captionLengthFilter.addEventListener("input", filterUpdate);
 
 }).catch(error => {
     console.error("Error loading the data: ", error);
