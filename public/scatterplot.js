@@ -61,7 +61,7 @@ d3.json("data-clip.json").then(data => {
             .attr("class", "dot")
             .attr("cx", d => x(d.x))
             .attr("cy", d => y(d.y))
-            .attr("r", 2)
+            .attr("r", 4)
             .style("fill", d => z(d.z))
             .on("mouseover", function(event, d) {
                 d3.select(this).style("cursor", "pointer"); 
@@ -95,8 +95,6 @@ d3.json("data-clip.json").then(data => {
     function filterUpdate() {
         const maxZ = +zFilter.value;
         const maxCaptionLength = +captionLengthFilter.value;
-        console.log(maxZ);
-        console.log(maxCaptionLength);
         const filteredData = data.filter(d => (d.z >= maxZ) && (d.caption_length <= maxCaptionLength));
         updatePlot(filteredData);
     }
