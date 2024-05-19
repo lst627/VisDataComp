@@ -4,6 +4,7 @@ d3.json("data-clip.json").then(data => {
     const margin = {top: 20, right: 20, bottom: 30, left: 40};
     const width = 750 - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
+    const slidersHeight = 400;
 
     const x = d3.scaleLinear()
         .domain(d3.extent(data, d => d.x))
@@ -21,6 +22,64 @@ d3.json("data-clip.json").then(data => {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+    
+    // Sliders container
+    const slider_g = d3.select('#filterContainer').append('svg')
+        .attr('width', width+margin.left+margin.right)
+        .attr('height', slidersHeight)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+        .attr('class', 'slider')
+
+    // clipScore slider
+    var clipScoreSliderValue = 0;
+    var clipScoreSlider = d3.sliderHorizontal()
+        .min(0)
+        .max(45)
+        .step(1)
+        .width(300)
+        .tickFormat(d3.format('d'))
+        .ticks(9)
+        .value(clipScoreSliderValue)
+        .on('onchange', val => {
+            clipScoreSliderValue = val;
+            filterUpdate();
+        });
+    const clipScoreSlider_g = slider_g.append('g');
+    clipScoreSlider_g.append('text')
+        .attr('x', 0)
+        .attr('y', 10)
+        .style('font-size', '16px')
+        .text('CLIP score filter (show data with value greater than selected):');
+    clipScoreSlider_g.append('g')
+        .call(clipScoreSlider)
+        .attr('transform', `translate(10, 30)`);
+
+    
+    // captionLength slider
+    var captionLengthSliderValue = 100;
+    var captionLengthSlider = d3.sliderHorizontal()
+        .min(0)
+        .max(200)
+        .step(5)
+        .width(300)
+        .tickFormat(d3.format('d'))
+        .ticks(10)
+        .value(captionLengthSliderValue)
+        .on('onchange', val => {
+            captionLengthSliderValue = val;
+            filterUpdate();
+        });
+    const captionLengthSlider_g = slider_g.append('g').attr('transform', `translate(0, 100)`);
+    captionLengthSlider_g.append('text')
+        .attr('x', 0)
+        .attr('y', 10)
+        .style('font-size', '16px')
+        .text('Caption length filter (show data with value less than selected):');
+    captionLengthSlider_g.append('g')
+        .call(captionLengthSlider)
+        .attr('transform', `translate(10, 30)`);
+
 
     // Create a clip path to prevent dots from being drawn outside the chart area
     svg.append("defs").append("clipPath")
@@ -90,12 +149,8 @@ d3.json("data-clip.json").then(data => {
             .style("fill", d => z(d.z));
     }
     
-    const zFilter = document.getElementById("CLIP score Filter");
-    const captionLengthFilter = document.getElementById("caption length Filter");
     function filterUpdate() {
-        const maxZ = +zFilter.value;
-        const maxCaptionLength = +captionLengthFilter.value;
-        const filteredData = data.filter(d => (d.z >= maxZ) && (d.caption_length <= maxCaptionLength));
+        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue) && (d.caption_length < captionLengthSliderValue)));
         updatePlot(filteredData);
     }
     // Initial plot update
@@ -121,11 +176,6 @@ d3.json("data-clip.json").then(data => {
     }
 
     svg.call(zoom);
-
-    // Filter function
-    zFilter.addEventListener("input", filterUpdate);
-    captionLengthFilter.addEventListener("input", filterUpdate);
-
 }).catch(error => {
     console.error("Error loading the data: ", error);
 });

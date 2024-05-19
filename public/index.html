@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Filtering Methods for DataComp</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
     <link rel="stylesheet" href="tufte.css"/>
     <style>
         body {
@@ -52,7 +53,7 @@
         #filterContainer {
             width: 100%;
             margin: 20px 0;
-            text-align: center;
+            text-align: left;
         }
     </style>
 </head>
@@ -66,18 +67,6 @@
         </div>
     </div>
     <div id="filterContainer">
-        <div>
-        <label for="CLIP score Filter">Filter by CLIP score:</label>
-        <span id="Left CLIP score">0</span>
-        <input type="range" id="CLIP score Filter" name="CLIP score Filter" min="0" max="50" step="1" value="25">
-        <span id="Right CLIP score">50</span>
-        </div>
-        <div>
-        <label for="caption length Filter">Filter by caption length:</label>
-        <span id="Left caption length">0</span>
-        <input type="range" id="caption length Filter" name="caption length Filter" min="0" max="200" step="10" value="100">
-        <span id="Right caption length">200</span>
-        </div>
     </div>
     <script src="scatterplot.js"></script>
 </body>
