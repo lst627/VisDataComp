@@ -20,7 +20,8 @@ d3.json("data-clip.json").then(data => {
     const svg = d3.select("#scatterPlot").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .append("g")
+    
+    const scatterContainer = svg.append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
     
     // Sliders container
@@ -50,14 +51,14 @@ d3.json("data-clip.json").then(data => {
         .attr('x', 0)
         .attr('y', 10)
         .style('font-size', '16px')
-        .text('CLIP score filter (show data with value greater than selected):');
+        .text('CLIP score filter (show data with value greater than selected value):');
     clipScoreSlider_g.append('g')
         .call(clipScoreSlider)
         .attr('transform', `translate(10, 30)`);
 
     
     // captionLength slider
-    var captionLengthSliderValue = 100;
+    var captionLengthSliderValue = 0;
     var captionLengthSlider = d3.sliderHorizontal()
         .min(0)
         .max(200)
@@ -75,27 +76,27 @@ d3.json("data-clip.json").then(data => {
         .attr('x', 0)
         .attr('y', 10)
         .style('font-size', '16px')
-        .text('Caption length filter (show data with value less than selected):');
+        .text('Caption length filter (show data with value greater than selected value):');
     captionLengthSlider_g.append('g')
         .call(captionLengthSlider)
         .attr('transform', `translate(10, 30)`);
 
 
     // Create a clip path to prevent dots from being drawn outside the chart area
-    svg.append("defs").append("clipPath")
+    scatterContainer.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
         .attr("width", width)
         .attr("height", height);
 
-    const scatter = svg.append("g")
+    const scatter = scatterContainer.append("g")
         .attr("clip-path", "url(#clip)");
 
-    const xAxis = svg.append("g")
+    const xAxis = scatterContainer.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x));
 
-    const yAxis = svg.append("g")
+    const yAxis = scatterContainer.append("g")
         .call(d3.axisLeft(y));
 
     // Create a tooltip div that is hidden by default
@@ -148,13 +149,14 @@ d3.json("data-clip.json").then(data => {
             .attr("cy", d => currentZoomTransform.rescaleY(y)(d.y))
             .style("fill", d => z(d.z));
     }
+    updatePlot(data);
     
     function filterUpdate() {
-        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue) && (d.caption_length < captionLengthSliderValue)));
+        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue) && (d.caption_length > captionLengthSliderValue)));
         updatePlot(filteredData);
     }
     // Initial plot update
-    // updatePlot(data);
+    
     filterUpdate();
 
     // Zoom function
