@@ -122,6 +122,8 @@ d3.json("data-clip.json").then(data => {
         dots.enter().append("circle")
             .attr("class", "dot")
             .attr("r", 4)
+            .attr("cx", d => currentZoomTransform.rescaleX(x)(d.x))
+            .attr("cy", d => currentZoomTransform.rescaleY(y)(d.y))
             .style("fill", d => z(d.z))
             .on("mouseover", function(event, d) {
                 d3.select(this).style("cursor", "pointer"); 
@@ -143,11 +145,6 @@ d3.json("data-clip.json").then(data => {
                 imageElement.attr("src", d.image);
                 captionElement.text(d.caption);
             });
-
-        // Update existing elements
-        dots.attr("cx", d => currentZoomTransform.rescaleX(x)(d.x))
-            .attr("cy", d => currentZoomTransform.rescaleY(y)(d.y))
-            .style("fill", d => z(d.z));
     }
     updatePlot(data);
     
