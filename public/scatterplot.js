@@ -103,6 +103,9 @@ d3.json("data-clip.json").then(data => {
         .attr("class", "tooltip")
         .style("opacity", 0);
 
+    // Record current zoom state
+    let currentZoomTransform = d3.zoomIdentity;
+
     // Select the image and caption elements
     const imageElement = d3.select("#selectedImage");
     const captionElement = d3.select("#imageCaption");
@@ -117,9 +120,6 @@ d3.json("data-clip.json").then(data => {
         
         dots.enter().append("circle")
             .attr("class", "dot")
-            .attr("class", "dot")
-            .attr("cx", d => x(d.x))
-            .attr("cy", d => y(d.y))
             .attr("r", 4)
             .style("fill", d => z(d.z))
             .on("mouseover", function(event, d) {
@@ -143,9 +143,9 @@ d3.json("data-clip.json").then(data => {
                 captionElement.text(d.caption);
             });
 
-            // Update existing elements
-            dots.attr("cx", d => x(d.x))
-            .attr("cy", d => y(d.y))
+        // Update existing elements
+        dots.attr("cx", d => currentZoomTransform.rescaleX(x)(d.x))
+            .attr("cy", d => currentZoomTransform.rescaleY(y)(d.y))
             .style("fill", d => z(d.z));
     }
     
@@ -161,7 +161,10 @@ d3.json("data-clip.json").then(data => {
     const zoom = d3.zoom()
         .scaleExtent([0.5, 20])
         .extent([[0, 0], [width, height]])
-        .on("zoom", zoomed);
+        .on("zoom", function(event) {
+            currentZoomTransform = event.transform;
+            zoomed(event);
+        });
 
     function zoomed(event) {
         // create new scale ojects based on event
