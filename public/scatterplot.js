@@ -125,6 +125,9 @@ d3.json("data-clip.json").then(data => {
             .attr("cx", d => currentZoomTransform.rescaleX(x)(d.x))
             .attr("cy", d => currentZoomTransform.rescaleY(y)(d.y))
             .style("fill", d => z(d.z))
+            .style("opacity", 1.0)  // Adjust opacity
+            .style("stroke-width", 0.2)  // Adjust stroke width
+            .style("stroke", "black")  // Optionally, add stroke color
             .on("mouseover", function(event, d) {
                 d3.select(this).style("cursor", "pointer"); 
                 tooltip.transition()
@@ -166,12 +169,14 @@ d3.json("data-clip.json").then(data => {
         });
 
     function zoomed(event) {
+        const {transform} = event;
         // create new scale ojects based on event
         const newX = event.transform.rescaleX(x);
         const newY = event.transform.rescaleY(y);
         // update axes
         xAxis.call(d3.axisBottom(newX));
         yAxis.call(d3.axisLeft(newY));
+        
         scatter.selectAll("circle")
             .attr("cx", d => newX(d.x))
             .attr("cy", d => newY(d.y));
