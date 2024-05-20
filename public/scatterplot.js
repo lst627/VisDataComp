@@ -1,6 +1,5 @@
 // Fetch the data from the JSON file
-d3.json("data-clip.json").then(data => {
-
+d3.json("data-clip-new.json").then(data => {
     const margin = {top: 20, right: 20, bottom: 30, left: 40};
     const width = 750 - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
@@ -19,18 +18,22 @@ d3.json("data-clip.json").then(data => {
 
     const svg = d3.select("#scatterPlot").append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("height", height + margin.top + margin.bottom);
     
     const scatterContainer = svg.append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
     
     // Sliders container
     const slider_g = d3.select('#filterContainer').append('svg')
-        .attr('width', width+margin.left+margin.right)
+        .attr('width', width + margin.left + margin.right)
         .attr('height', slidersHeight)
         .append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
-        .attr('class', 'slider')
+        .attr('class', 'slider');
+
+    var isEnglishValue = 0;
+    var aspectratio = 1000;
+    var smallerdimValue = 0;
 
     // clipScore slider
     var clipScoreSliderValue = 0;
@@ -50,7 +53,7 @@ d3.json("data-clip.json").then(data => {
     clipScoreSlider_g.append('text')
         .attr('x', 0)
         .attr('y', 10)
-        .style('font-size', '16px')
+        .style('font-size', '20px')
         .text('CLIP score filter (show data with value greater than selected value):');
     clipScoreSlider_g.append('g')
         .call(clipScoreSlider)
@@ -61,8 +64,8 @@ d3.json("data-clip.json").then(data => {
     var captionLengthSliderValue = 0;
     var captionLengthSlider = d3.sliderHorizontal()
         .min(0)
-        .max(200)
-        .step(5)
+        .max(50)
+        .step(1)
         .width(300)
         .tickFormat(d3.format('d'))
         .ticks(10)
@@ -75,12 +78,11 @@ d3.json("data-clip.json").then(data => {
     captionLengthSlider_g.append('text')
         .attr('x', 0)
         .attr('y', 10)
-        .style('font-size', '16px')
+        .style('font-size', '20px')
         .text('Caption length filter (show data with value greater than selected value):');
     captionLengthSlider_g.append('g')
         .call(captionLengthSlider)
         .attr('transform', `translate(10, 30)`);
-
 
     // Create a clip path to prevent dots from being drawn outside the chart area
     scatterContainer.append("defs").append("clipPath")
@@ -135,7 +137,8 @@ d3.json("data-clip.json").then(data => {
                     .style("opacity", .9);
                 tooltip.html(`x: ${d.x}<br/>y: ${d.y}<br/>CLIP score: ${d.z}`)
                     .style("left", (event.pageX + 5) + "px")
-                    .style("top", (event.pageY - 28) + "px");
+                    .style("top", (event.pageY - 28) + "px")
+                    .style('font-size', '15px');
             })
             .on("mouseout", function(d) {
                 d3.select(this).style("cursor", "default"); 
@@ -152,7 +155,7 @@ d3.json("data-clip.json").then(data => {
     updatePlot(data);
     
     function filterUpdate() {
-        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue) && (d.caption_length > captionLengthSliderValue)));
+        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue) && (d.caption_length > captionLengthSliderValue)&& (d.is_english >= isEnglishValue) && (d.aspect_ratio < aspectratio) && (d.smaller_dim > smallerdimValue)));
         updatePlot(filteredData);
     }
     // Initial plot update
@@ -170,7 +173,7 @@ d3.json("data-clip.json").then(data => {
 
     function zoomed(event) {
         const {transform} = event;
-        // create new scale ojects based on event
+        // create new scale objects based on event
         const newX = event.transform.rescaleX(x);
         const newY = event.transform.rescaleY(y);
         // update axes
@@ -183,6 +186,89 @@ d3.json("data-clip.json").then(data => {
     }
 
     svg.call(zoom);
+
+    // Add clickable links to adjust filter values
+    const filterLinks = [
+        {value: 28, label: '28', slider: clipScoreSlider},
+        {value: 30, label: '30', slider: clipScoreSlider},
+        {value: 5, label: '5', slider: captionLengthSlider}
+    ];
+
+    // Function to create filter links in the text
+    function createFilterLinks(containerId, links, title) {
+        const container = d3.select(containerId);
+        title_text = container.append("p").text(title);
+        links.forEach(link => {
+            title_text.append("a")
+                .attr("href", "#")
+                .attr("data-value", link.value)
+                .attr("data-slider", link.slider === clipScoreSlider ? "clipScore" : "captionLength")
+                .style("cursor", "pointer")
+                .style("text-decoration", "underline")
+                .style("margin-right", "15px")
+                .text(link.label)
+                .on("click", function(event) {
+                    event.preventDefault();
+                    link.slider.value(link.value);
+                    link.slider.on('onchange')(link.value);
+                });
+        });
+    }
+
+    // Create filter links for CLIP score and caption length
+    createFilterLinks("#clipScoreValues", filterLinks.filter(link => link.slider === clipScoreSlider), "CLIP score values:  ");
+    createFilterLinks("#captionLengthValues", filterLinks.filter(link => link.slider === captionLengthSlider), "Caption length values:  ");
+
+    const Englishcontainer = d3.select("#isEnglishValues");
+    Englishcontainer.append("a")
+            .attr("href", "#")
+            .style("cursor", "pointer")
+            .style("text-decoration", "underline")
+            .text("Only English captions")
+            .on("click", function(event) {
+                event.preventDefault();
+                isEnglishValue = 1;
+                filterUpdate();
+            });
+    
+    const Aspectcontainer = d3.select("#aspectratio");
+    Aspectcontainer.append("a")
+            .attr("href", "#")
+            .style("cursor", "pointer")
+            .style("text-decoration", "underline")
+            .text("Image aspect ratio < 3")
+            .on("click", function(event) {
+                event.preventDefault();
+                aspectratio = 3;
+                filterUpdate();
+            });
+    
+    const Smallerdimcontainer = d3.select("#smallerdimValue");
+    Smallerdimcontainer.append("a")
+            .attr("href", "#")
+            .style("cursor", "pointer")
+            .style("text-decoration", "underline")
+            .text("Image smaller dimension > 200px")
+            .on("click", function(event) {
+                event.preventDefault();
+                smallerdimValue = 200;
+                filterUpdate();
+            });
+    
+    const resetcontainer = d3.select("#reset");
+    resetcontainer.append("a")
+            .attr("href", "#")
+            .style("cursor", "pointer")
+            .style("text-decoration", "underline")
+            .text("Reset Basic Filtering")
+            .on("click", function(event) {
+                event.preventDefault();
+                isEnglishValue = 0;
+                aspectratio = 1000;
+                smallerdimValue = 0;
+                filterUpdate();
+            });
+
 }).catch(error => {
     console.error("Error loading the data: ", error);
 });

@@ -50,9 +50,20 @@
             margin-top: 10px;
             font: 14px sans-serif;
         }
-        #filterContainer {
-            width: 100%;
+        #filterContainerWrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin: 20px 0;
+            text-align: center;
+        }
+        #filterContainer {
+            flex: 1;
+        }
+        #filterText {
+            flex: 1;
+            margin-left: 20px;
+            font-size: 14px sans-serif;
             text-align: left;
         }
     </style>
@@ -66,7 +77,19 @@
             <div id="imageCaption">Click a dot to display an image and its caption</div>
         </div>
     </div>
-    <div id="filterContainer">
+    <div id="filterContainerWrapper">
+        <div id="filterContainer">
+        </div>
+        <div id="filterText">
+            <p>Adjust the filters using the sliders on the left or click on the following values used in <a href='https://arxiv.org/pdf/2304.14108'>baseline filters</a>:</p>
+            <p><span id="clipScoreValues"></span></p>
+            <p>Also try Basic filtering below:</p>
+            <p><span id="captionLengthValues"></span></p>
+            <p><span id="isEnglishValues"></span></p>
+            <p><span id="aspectratio"></span></p>
+            <p><span id="smallerdimValue"></span></p>
+            <p><span id="reset"></span></p>
+        </div>
     </div>
     <script src="scatterplot.js"></script>
 </body>
