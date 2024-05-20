@@ -36,7 +36,7 @@ d3.json("data-clip-new.json").then(data => {
     var smallerdimValue = 0;
 
     // clipScore slider
-    var clipScoreSliderValue = 0;
+    var clipScoreSliderValue = [0, 45];
     var clipScoreSlider = d3.sliderHorizontal()
         .min(0)
         .max(45)
@@ -45,6 +45,7 @@ d3.json("data-clip-new.json").then(data => {
         .tickFormat(d3.format('d'))
         .ticks(9)
         .value(clipScoreSliderValue)
+        .fill('#2196f3')
         .on('onchange', val => {
             clipScoreSliderValue = val;
             filterUpdate();
@@ -54,14 +55,14 @@ d3.json("data-clip-new.json").then(data => {
         .attr('x', 0)
         .attr('y', 10)
         .style('font-size', '20px')
-        .text('CLIP score filter (show data with value greater than selected value):');
+        .text('CLIP score filter:');
     clipScoreSlider_g.append('g')
         .call(clipScoreSlider)
         .attr('transform', `translate(10, 30)`);
 
     
     // captionLength slider
-    var captionLengthSliderValue = 0;
+    var captionLengthSliderValue = [0, 50];
     var captionLengthSlider = d3.sliderHorizontal()
         .min(0)
         .max(50)
@@ -69,6 +70,7 @@ d3.json("data-clip-new.json").then(data => {
         .width(300)
         .tickFormat(d3.format('d'))
         .ticks(10)
+        .fill('#2196f3')
         .value(captionLengthSliderValue)
         .on('onchange', val => {
             captionLengthSliderValue = val;
@@ -79,7 +81,7 @@ d3.json("data-clip-new.json").then(data => {
         .attr('x', 0)
         .attr('y', 10)
         .style('font-size', '20px')
-        .text('Caption length filter (show data with value greater than selected value):');
+        .text('Caption length filter:');
     captionLengthSlider_g.append('g')
         .call(captionLengthSlider)
         .attr('transform', `translate(10, 30)`);
@@ -155,7 +157,7 @@ d3.json("data-clip-new.json").then(data => {
     updatePlot(data);
     
     function filterUpdate() {
-        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue) && (d.caption_length > captionLengthSliderValue)&& (d.is_english >= isEnglishValue) && (d.aspect_ratio < aspectratio) && (d.smaller_dim > smallerdimValue)));
+        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue[0] && d.z < clipScoreSliderValue[1]) && (d.caption_length > captionLengthSliderValue[0] && d.caption_length < captionLengthSliderValue[1])&& (d.is_english >= isEnglishValue) && (d.aspect_ratio < aspectratio) && (d.smaller_dim > smallerdimValue)));
         updatePlot(filteredData);
     }
     // Initial plot update
@@ -189,9 +191,9 @@ d3.json("data-clip-new.json").then(data => {
 
     // Add clickable links to adjust filter values
     const filterLinks = [
-        {value: 28, label: '28', slider: clipScoreSlider},
-        {value: 30, label: '30', slider: clipScoreSlider},
-        {value: 5, label: '5', slider: captionLengthSlider}
+        {value: [28, 45], label: '28', slider: clipScoreSlider},
+        {value: [30, 45], label: '30', slider: clipScoreSlider},
+        {value: [5, 50], label: '5', slider: captionLengthSlider}
     ];
 
     // Function to create filter links in the text
@@ -266,9 +268,8 @@ d3.json("data-clip-new.json").then(data => {
                 isEnglishValue = 0;
                 aspectratio = 1000;
                 smallerdimValue = 0;
-                captionLengthSliderValue = 0;
-                captionLengthSlider.value(0);
-
+                captionLengthSliderValue = [0, 50];
+                captionLengthSlider.value([0, 50]);
                 filterUpdate();
             });
 
