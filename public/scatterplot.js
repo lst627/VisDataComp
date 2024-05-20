@@ -197,7 +197,7 @@ d3.json("data-clip-new.json").then(data => {
     // Function to create filter links in the text
     function createFilterLinks(containerId, links, title) {
         const container = d3.select(containerId);
-        title_text = container.append("p").text(title);
+        title_text = container.text(title);
         links.forEach(link => {
             title_text.append("a")
                 .attr("href", "#")
