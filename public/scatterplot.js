@@ -266,6 +266,9 @@ d3.json("data-clip-new.json").then(data => {
                 isEnglishValue = 0;
                 aspectratio = 1000;
                 smallerdimValue = 0;
+                captionLengthSliderValue = 0;
+                captionLengthSlider.value(0);
+
                 filterUpdate();
             });
 
