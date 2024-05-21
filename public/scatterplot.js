@@ -94,6 +94,7 @@ d3.json("data-clip-new.json").then(data => {
     
     // captionLength slider
     var captionLengthSliderValue = [0, 50];
+    var captionLengthCheckboxValue = true;
     var captionLengthSlider = d3.sliderHorizontal()
         .min(0)
         .max(50)
@@ -117,7 +118,36 @@ d3.json("data-clip-new.json").then(data => {
     captionLengthSlider_g.append('g')
         .call(captionLengthSlider)
         .attr('transform', `translate(10, 30)`);
-
+    const captionLengthCheckbox_g = captionLengthSlider_g.append('g')
+        .attr('transform', `translate(340, -3)`);
+    const captionLengthCheckbox = captionLengthCheckbox_g.append('rect')
+        .attr('x', 10)
+        .attr('y', 25)
+        .attr('width', 20)
+        .attr('height', 20)
+        .style('fill', 'white')
+        .style('stroke', 'black');
+    const captionLengthCheckmark = captionLengthCheckbox_g.append('text')
+        .attr('x', 13)
+        .attr('y', 41)
+        .attr('fill', textcolor)
+        .text('✔')
+        .style('visibility', captionLengthCheckboxValue ? 'visible': 'hidden')
+        .style('font-size', '18px')
+        .style('pointer-events', 'none');
+    captionLengthCheckbox.on('click', function() {
+        captionLengthCheckboxValue ^= 1;
+        captionLengthCheckmark.style('visibility', captionLengthCheckboxValue ? 'visible' : 'hidden')
+        filterUpdate();
+    });
+    captionLengthCheckbox_g.append('text')
+        .attr('x', 35)
+        .attr('y', 41)
+        .attr('fill', textcolor)
+        .text('Show data with caption length ≥ 50.')
+        .style('font-size', '16px')
+    
+    
     // Create a clip path to prevent dots from being drawn outside the chart area
     scatterContainer.append("defs").append("clipPath")
         .attr("id", "clip")
@@ -189,7 +219,14 @@ d3.json("data-clip-new.json").then(data => {
     updatePlot(data);
     
     function filterUpdate() {
-        const filteredData = data.filter(d => ((d.z > clipScoreSliderValue[0] && d.z < clipScoreSliderValue[1]) && (d.caption_length > captionLengthSliderValue[0] && d.caption_length < captionLengthSliderValue[1])&& (d.is_english >= isEnglishValue) && (d.aspect_ratio < aspectratio) && (d.smaller_dim > smallerdimValue)));
+        const filteredData = data.filter(
+            d => (
+                (d.z > clipScoreSliderValue[0] && d.z < clipScoreSliderValue[1]) && 
+                ((d.caption_length > captionLengthSliderValue[0] && d.caption_length < captionLengthSliderValue[1]) || (captionLengthCheckboxValue && d.caption_length >= 50)) && 
+                (d.is_english >= isEnglishValue) && 
+                (d.aspect_ratio < aspectratio) && 
+                (d.smaller_dim > smallerdimValue))
+        );
         updatePlot(filteredData);
     }
     // Initial plot update
