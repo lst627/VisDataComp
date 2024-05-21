@@ -173,6 +173,9 @@ d3.json("data-clip-new.json").then(data => {
     // Record current zoom state
     let currentZoomTransform = d3.zoomIdentity;
 
+     // Track clicked dots
+     const clickedDots = new Set();
+
     // Select the image and caption elements
     const imageElement = d3.select("#selectedImage");
     const captionElement = d3.select("#imageCaption");
@@ -190,7 +193,7 @@ d3.json("data-clip-new.json").then(data => {
             .attr("r", 4)
             .attr("cx", d => currentZoomTransform.rescaleX(x)(d.x))
             .attr("cy", d => currentZoomTransform.rescaleY(y)(d.y))
-            .style("fill", d => z(d.z))
+            .style("fill", d => clickedDots.has(d.x + ":" + d.y) ? "red" : z(d.z))
             .style("opacity", 1.0)  // Adjust opacity
             .style("stroke-width", 0.2)  // Adjust stroke width
             .style("stroke", "black")  // Optionally, add stroke color
@@ -211,10 +214,16 @@ d3.json("data-clip-new.json").then(data => {
                     .style("opacity", 0);
             })
             .on("click", function(event, d) {
+                // Set clicked dot to red
+                d3.select(this).style("fill", "red");
+                clickedDots.add(d.x + ":" + d.y);
                 // Update the src attribute of the image element and the text content of the caption element
                 imageElement.attr("src", d.image);
                 captionElement.text(d.caption);
+                // Prevent event from propagating to svg click listener
+                event.stopPropagation();
             });
+
     }
     updatePlot(data);
     
@@ -341,6 +350,12 @@ d3.json("data-clip-new.json").then(data => {
                 captionLengthSlider.value([0, 50]);
                 filterUpdate();
             });
+
+    // Click listener on the svg to reset dot colors
+    svg.on("click", function() {
+        clickedDots.clear();
+        scatter.selectAll(".dot").style("fill", d => z(d.z));
+    });
 
 }).catch(error => {
     console.error("Error loading the data: ", error);
