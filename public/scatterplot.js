@@ -215,8 +215,13 @@ d3.json("data-clip-new.json").then(data => {
             })
             .on("click", function(event, d) {
                 // Set clicked dot to red
-                d3.select(this).style("fill", "red");
-                clickedDots.add(d.x + ":" + d.y);
+                if (clickedDots.has(d.x + ":" + d.y)) {
+                    clickedDots.delete(d.x + ":" + d.y);
+                    d3.select(this).style("fill", d => z(d.z));
+                } else {
+                    clickedDots.add(d.x + ":" + d.y);
+                    d3.select(this).style("fill", "red");
+                }
                 // Update the src attribute of the image element and the text content of the caption element
                 imageElement.attr("src", d.image);
                 captionElement.text(d.caption);
