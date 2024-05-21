@@ -115,21 +115,48 @@ d3.json("data-clip-new.json").then(data => {
         .attr('fill', textcolor)
         .style('font-size', '20px')
         .text('Caption length filter:');
+    const xScaleCaptionLength = d3.scaleLinear()
+        .domain([0, 50])
+        .range([0, 300])
+    const histogramCaptionLength = d3.histogram()
+        .value(d => d)
+        .domain(xScaleCaptionLength.domain())
+        .thresholds(xScaleCaptionLength.ticks(10).slice(0, -1))(data.map(d=>d.caption_length))
+    const yScaleCaptionLength = d3.scaleLinear()
+        .domain([0, d3.max(histogramCaptionLength, d => d.length)])
+        .range([80, 0]); 
+    const captionLengthBarWidth = 300 / histogramCaptionLength.length;
+    const captionLengthBarplot_g = captionLengthSlider_g.append('g')
+        .attr('transform', 'translate(10, 20)');
+    captionLengthBarplot_g.selectAll('.bar')
+        .data(histogramCaptionLength)
+        .enter().append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d, i) => i * captionLengthBarWidth)
+        .attr('y', d => yScaleCaptionLength(d.length))
+        .attr('width', captionLengthBarWidth - 1)
+        .attr('height', d => 80 - yScaleCaptionLength(d.length))
+        .style('fill', '#bbb')
+        .on('click', (event, d) => {
+            captionLengthSliderValue = [d.x0, d.x1];
+            captionLengthSlider.value(captionLengthSliderValue);
+            filterUpdate();
+        });
     captionLengthSlider_g.append('g')
         .call(captionLengthSlider)
-        .attr('transform', `translate(10, 30)`);
+        .attr('transform', `translate(10, 104)`);
     const captionLengthCheckbox_g = captionLengthSlider_g.append('g')
         .attr('transform', `translate(340, -3)`);
     const captionLengthCheckbox = captionLengthCheckbox_g.append('rect')
         .attr('x', 10)
-        .attr('y', 25)
+        .attr('y', 99)
         .attr('width', 20)
         .attr('height', 20)
         .style('fill', 'white')
         .style('stroke', 'black');
     const captionLengthCheckmark = captionLengthCheckbox_g.append('text')
         .attr('x', 13)
-        .attr('y', 41)
+        .attr('y', 115)
         .attr('fill', textcolor)
         .text('✔')
         .style('visibility', captionLengthCheckboxValue ? 'visible': 'hidden')
@@ -142,7 +169,7 @@ d3.json("data-clip-new.json").then(data => {
     });
     captionLengthCheckbox_g.append('text')
         .attr('x', 35)
-        .attr('y', 41)
+        .attr('y', 115)
         .attr('fill', textcolor)
         .text('Show data with caption length ≥ 50.')
         .style('font-size', '16px')
