@@ -56,9 +56,37 @@ d3.json("data-clip-new.json").then(data => {
         .attr('y', 10)
         .style('font-size', '20px')
         .text('CLIP score filter:');
+    const xScaleClipScore = d3.scaleLinear()
+        .domain([0, 45])
+        .range([0, 300])
+    const histogramClipScore = d3.histogram()
+        .value(d => d)
+        .domain(xScaleClipScore.domain())
+        .thresholds(xScaleClipScore.ticks(9).slice(0, -1))(data.map(d=>d.z))
+    const yScaleClipScore = d3.scaleLinear()
+        .domain([0, d3.max(histogramClipScore, d => d.length)])
+        .range([80, 0]); 
+    const barWidth = 300 / histogramClipScore.length;
+    const clipScoreBarplot_g = clipScoreSlider_g.append('g')
+        .attr('transform', 'translate(10, 20)');
+    clipScoreBarplot_g.selectAll('.bar')
+        .data(histogramClipScore)
+        .enter().append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d, i) => i * barWidth)
+        .attr('y', d => yScaleClipScore(d.length))
+        .attr('width', barWidth - 1)
+        .attr('height', d => 80 - yScaleClipScore(d.length))
+        .style('fill', '#bbb')
+        .on('click', (event, d) => {
+            clipScoreSliderValue = [d.x0, d.x1];
+            clipScoreSlider.value(clipScoreSliderValue)
+            filterUpdate();
+        })
+
     clipScoreSlider_g.append('g')
         .call(clipScoreSlider)
-        .attr('transform', `translate(10, 30)`);
+        .attr('transform', `translate(10, 104)`);
 
     
     // captionLength slider
@@ -76,7 +104,7 @@ d3.json("data-clip-new.json").then(data => {
             captionLengthSliderValue = val;
             filterUpdate();
         });
-    const captionLengthSlider_g = slider_g.append('g').attr('transform', `translate(0, 100)`);
+    const captionLengthSlider_g = slider_g.append('g').attr('transform', `translate(0, 150)`);
     captionLengthSlider_g.append('text')
         .attr('x', 0)
         .attr('y', 10)
