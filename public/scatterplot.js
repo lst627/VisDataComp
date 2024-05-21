@@ -30,6 +30,8 @@ d3.json("data-clip-new.json").then(data => {
         .append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
         .attr('class', 'slider');
+    const textcolor = window.getComputedStyle(document.getElementById('filterContainer'))
+            .getPropertyValue('color');
 
     var isEnglishValue = 0;
     var aspectratio = 1000;
@@ -54,6 +56,7 @@ d3.json("data-clip-new.json").then(data => {
     clipScoreSlider_g.append('text')
         .attr('x', 0)
         .attr('y', 10)
+        .attr('fill', textcolor)
         .style('font-size', '20px')
         .text('CLIP score filter:');
     const xScaleClipScore = d3.scaleLinear()
@@ -108,6 +111,7 @@ d3.json("data-clip-new.json").then(data => {
     captionLengthSlider_g.append('text')
         .attr('x', 0)
         .attr('y', 10)
+        .attr('fill', textcolor)
         .style('font-size', '20px')
         .text('Caption length filter:');
     captionLengthSlider_g.append('g')
