@@ -33,6 +33,35 @@ d3.json("data-clip-new.json").then(data => {
     const textcolor = window.getComputedStyle(document.getElementById('filterContainer'))
             .getPropertyValue('color');
 
+    function createCheckbox(container, title, fun, boolValueObj) {
+        const checkbox = container.append('rect')
+            .attr('x', 10)
+            .attr('y', 99)
+            .attr('width', 20)
+            .attr('height', 20)
+            .style('fill', 'white')
+            .style('stroke', 'black');
+        const checkmark = container.append('text')
+            .attr('x', 13)
+            .attr('y', 115)
+            .attr('fill', textcolor)
+            .text('✔')
+            .style('visibility', boolValueObj.value ? 'visible': 'hidden')
+            .style('font-size', '18px')
+            .style('pointer-events', 'none');
+        checkbox.on('click', function() {
+            boolValueObj.value ^= 1;
+            checkmark.style('visibility', boolValueObj.value ? 'visible' : 'hidden')
+            fun()
+        });
+        container.append('text')
+            .attr('x', 35)
+            .attr('y', 115)
+            .attr('fill', textcolor)
+            .text(title)
+            .style('font-size', '16px');
+    }
+
     var isEnglishValue = 0;
     var aspectratio = 1000;
     var smallerdimValue = 0;
@@ -94,7 +123,7 @@ d3.json("data-clip-new.json").then(data => {
     
     // captionLength slider
     var captionLengthSliderValue = [0, 50];
-    var captionLengthCheckboxValue = true;
+    var captionLengthCheckboxValue = {'value': true};
     var captionLengthSlider = d3.sliderHorizontal()
         .min(0)
         .max(50)
@@ -147,32 +176,7 @@ d3.json("data-clip-new.json").then(data => {
         .attr('transform', `translate(10, 104)`);
     const captionLengthCheckbox_g = captionLengthSlider_g.append('g')
         .attr('transform', `translate(340, -3)`);
-    const captionLengthCheckbox = captionLengthCheckbox_g.append('rect')
-        .attr('x', 10)
-        .attr('y', 99)
-        .attr('width', 20)
-        .attr('height', 20)
-        .style('fill', 'white')
-        .style('stroke', 'black');
-    const captionLengthCheckmark = captionLengthCheckbox_g.append('text')
-        .attr('x', 13)
-        .attr('y', 115)
-        .attr('fill', textcolor)
-        .text('✔')
-        .style('visibility', captionLengthCheckboxValue ? 'visible': 'hidden')
-        .style('font-size', '18px')
-        .style('pointer-events', 'none');
-    captionLengthCheckbox.on('click', function() {
-        captionLengthCheckboxValue ^= 1;
-        captionLengthCheckmark.style('visibility', captionLengthCheckboxValue ? 'visible' : 'hidden')
-        filterUpdate();
-    });
-    captionLengthCheckbox_g.append('text')
-        .attr('x', 35)
-        .attr('y', 115)
-        .attr('fill', textcolor)
-        .text('Show data with caption length ≥ 50.')
-        .style('font-size', '16px')
+    createCheckbox(captionLengthCheckbox_g, 'Show data with caption length ≥ 50.', filterUpdate, captionLengthCheckboxValue);
     
     
     // Create a clip path to prevent dots from being drawn outside the chart area
@@ -263,7 +267,7 @@ d3.json("data-clip-new.json").then(data => {
         const filteredData = data.filter(
             d => (
                 (d.z > clipScoreSliderValue[0] && d.z < clipScoreSliderValue[1]) && 
-                ((d.caption_length > captionLengthSliderValue[0] && d.caption_length < captionLengthSliderValue[1]) || (captionLengthCheckboxValue && d.caption_length >= 50)) && 
+                ((d.caption_length > captionLengthSliderValue[0] && d.caption_length < captionLengthSliderValue[1]) || (captionLengthCheckboxValue.value && d.caption_length >= 50)) && 
                 (d.is_english >= isEnglishValue) && 
                 (d.aspect_ratio < aspectratio) && 
                 (d.smaller_dim > smallerdimValue))
