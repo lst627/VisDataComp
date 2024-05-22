@@ -36,14 +36,14 @@ d3.json("data-clip-new.json").then(data => {
     function createCheckbox(container, title, fun, boolValueObj) {
         const checkbox = container.append('rect')
             .attr('x', 10)
-            .attr('y', 99)
+            .attr('y', 0)
             .attr('width', 20)
             .attr('height', 20)
             .style('fill', 'white')
             .style('stroke', 'black');
         const checkmark = container.append('text')
             .attr('x', 13)
-            .attr('y', 115)
+            .attr('y', 16)
             .attr('fill', textcolor)
             .text('✔')
             .style('visibility', boolValueObj.value ? 'visible': 'hidden')
@@ -56,15 +56,15 @@ d3.json("data-clip-new.json").then(data => {
         });
         container.append('text')
             .attr('x', 35)
-            .attr('y', 115)
+            .attr('y', 16)
             .attr('fill', textcolor)
             .text(title)
             .style('font-size', '16px');
     }
 
-    var isEnglishValue = 0;
-    var aspectratio = 1000;
-    var smallerdimValue = 0;
+    var isEnglishValue = {'value': false};
+    var aspectratioL3 = {'value': false};
+    var smallerdimValueG200 = {'value': false};
 
     // clipScore slider
     var clipScoreSliderValue = [0, 45];
@@ -175,7 +175,7 @@ d3.json("data-clip-new.json").then(data => {
         .call(captionLengthSlider)
         .attr('transform', `translate(10, 104)`);
     const captionLengthCheckbox_g = captionLengthSlider_g.append('g')
-        .attr('transform', `translate(340, -3)`);
+        .attr('transform', `translate(340, 96)`);
     createCheckbox(captionLengthCheckbox_g, 'Show data with caption length ≥ 50.', filterUpdate, captionLengthCheckboxValue);
     
     
@@ -268,9 +268,9 @@ d3.json("data-clip-new.json").then(data => {
             d => (
                 (d.z > clipScoreSliderValue[0] && d.z < clipScoreSliderValue[1]) && 
                 ((d.caption_length > captionLengthSliderValue[0] && d.caption_length < captionLengthSliderValue[1]) || (captionLengthCheckboxValue.value && d.caption_length >= 50)) && 
-                (d.is_english >= isEnglishValue) && 
-                (d.aspect_ratio < aspectratio) && 
-                (d.smaller_dim > smallerdimValue))
+                (d.is_english >= isEnglishValue.value) && 
+                ((!aspectratioL3.value) || (d.aspect_ratio < 3)) && 
+                ((!smallerdimValueG200.value) || d.smaller_dim > 200))
         );
         updatePlot(filteredData);
     }
@@ -335,57 +335,10 @@ d3.json("data-clip-new.json").then(data => {
     createFilterLinks("#clipScoreValues", filterLinks.filter(link => link.slider === clipScoreSlider), "CLIP score values:  ");
     createFilterLinks("#captionLengthValues", filterLinks.filter(link => link.slider === captionLengthSlider), "Caption length values:  ");
 
-    const Englishcontainer = d3.select("#isEnglishValues");
-    Englishcontainer.append("a")
-            .attr("href", "#")
-            .style("cursor", "pointer")
-            .style("text-decoration", "underline")
-            .text("Only English captions")
-            .on("click", function(event) {
-                event.preventDefault();
-                isEnglishValue = 1;
-                filterUpdate();
-            });
-    
-    const Aspectcontainer = d3.select("#aspectratio");
-    Aspectcontainer.append("a")
-            .attr("href", "#")
-            .style("cursor", "pointer")
-            .style("text-decoration", "underline")
-            .text("Image aspect ratio < 3")
-            .on("click", function(event) {
-                event.preventDefault();
-                aspectratio = 3;
-                filterUpdate();
-            });
-    
-    const Smallerdimcontainer = d3.select("#smallerdimValue");
-    Smallerdimcontainer.append("a")
-            .attr("href", "#")
-            .style("cursor", "pointer")
-            .style("text-decoration", "underline")
-            .text("Image smaller dimension > 200px")
-            .on("click", function(event) {
-                event.preventDefault();
-                smallerdimValue = 200;
-                filterUpdate();
-            });
-    
-    const resetcontainer = d3.select("#reset");
-    resetcontainer.append("a")
-            .attr("href", "#")
-            .style("cursor", "pointer")
-            .style("text-decoration", "underline")
-            .text("Reset Basic Filtering")
-            .on("click", function(event) {
-                event.preventDefault();
-                isEnglishValue = 0;
-                aspectratio = 1000;
-                smallerdimValue = 0;
-                captionLengthSliderValue = [0, 50];
-                captionLengthSlider.value([0, 50]);
-                filterUpdate();
-            });
+    const basicFilters = d3.select('#basicFilters');
+    createCheckbox(basicFilters.append('g').attr('transform', `translate(0, 0)`), "Only English captions", filterUpdate, isEnglishValue)
+    createCheckbox(basicFilters.append('g').attr('transform', `translate(0, 30)`), "Image aspect ratio < 3", filterUpdate, aspectratioL3)
+    createCheckbox(basicFilters.append('g').attr('transform', `translate(0, 60)`), "Image smaller dimension > 200px", filterUpdate, smallerdimValueG200)
 
     // Click listener on the svg to reset dot colors
     svg.on("click", function() {
