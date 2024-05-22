@@ -327,6 +327,9 @@ d3.json("data-clip-new.json").then(data => {
                     event.preventDefault();
                     link.slider.value(link.value);
                     link.slider.on('onchange')(link.value);
+                    if((link.slider === captionLengthSlider) && (!captionLengthCheckboxValue.value)) {
+                        captionLengthCheckbox_g.select('rect').on('click')();
+                    }
                 });
         });
     }
