@@ -71,9 +71,8 @@
 <body>
     <h1>Filtering Methods for DataComp</h1>
     <p>Data is the fuel for modern vision-language models. Nowadays, machine learning researchers are experimenting with various methods for curating the training data, including deduplication, recaptioning, and filtering. </p>
-    <p>This is a visualization for better understanding the baseline filters used in <a href='https://arxiv.org/pdf/2304.14108'>the DataComp paper</a>. The 5868 image-text pairs are randomly sampled from the DataComp-small dataset. We employ t-SNE on the concatenation of CLIP image and text features for embedding the pairs, and use color to encode their CLIP score, which serves as the matching score of the image and text. </p>
-    <p>Try different values and combinations of the filters by yourself, and see what they actually do. </p>
-    <p>Are they effective in finding low-quality data? Are they biased? What are some possible alternatives?</p>
+    <p>This is a visualization for better understanding the data pool and baseline filters used in <a href='https://arxiv.org/pdf/2304.14108'>the DataComp paper</a>. The 5868 image-text pairs are randomly sampled from the DataComp-small data pool. We employ t-SNE on the concatenation of CLIP image and text features for embedding the pairs, and use color to encode their CLIP score, which serves as the matching score of the image and text. </p>
+    <p>Try different values and combinations of the filters by yourself, and see what they actually do. Are they effective in finding low-quality data? Are they biased? What are some better methods for data curation? Your idea could make a difference!</p>
     <div class="container">
         <div id="scatterPlot"></div>
         <div id="imageContainer">
@@ -96,6 +95,7 @@
             <svg id="basicFilters"></svg>
         </div>
     </div>
+    <p>Recommendations for your exploration: (1) How do the filters interact with each other? For example, does Basic filtering still help after applying CLIP score > 30? (2) Do the baseline filters throw out anything that might be useful for model training? (3) Try locating some semantically meaningful clusters, and observe how they change with your filter.</p>
     <script src="scatterplot.js"></script>
 </body>
 </html>

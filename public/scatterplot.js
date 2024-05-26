@@ -237,6 +237,10 @@ d3.json("data-clip-new.json").then(data => {
                     .style("left", (event.pageX + 5) + "px")
                     .style("top", (event.pageY - 28) + "px")
                     .style('font-size', '15px');
+
+                // Update the src attribute of the image element and the text content of the caption element
+                imageElement.attr("src", d.image);
+                captionElement.text(d.caption);
             })
             .on("mouseout", function(d) {
                 d3.select(this).style("cursor", "default"); 
@@ -253,9 +257,6 @@ d3.json("data-clip-new.json").then(data => {
                     clickedDots.add(d.x + ":" + d.y);
                     d3.select(this).style("fill", "red");
                 }
-                // Update the src attribute of the image element and the text content of the caption element
-                imageElement.attr("src", d.image);
-                captionElement.text(d.caption);
                 // Prevent event from propagating to svg click listener
                 event.stopPropagation();
             });
