@@ -204,8 +204,8 @@ d3.json("data-clip-new.json").then(data => {
     // Record current zoom state
     let currentZoomTransform = d3.zoomIdentity;
 
-     // Track clicked dots
-     const clickedDots = new Set();
+    // Track clicked dots
+    const clickedDot = new Set();
 
     // Select the image and caption elements
     const imageElement = d3.select("#selectedImage");
@@ -224,7 +224,7 @@ d3.json("data-clip-new.json").then(data => {
             .attr("r", 4)
             .attr("cx", d => currentZoomTransform.rescaleX(x)(d.x))
             .attr("cy", d => currentZoomTransform.rescaleY(y)(d.y))
-            .style("fill", d => clickedDots.has(d.x + ":" + d.y) ? "red" : z(d.z))
+            .style("fill", d => clickedDot.has(d.x + ":" + d.y) ? "red" : z(d.z))
             .style("opacity", 1.0)  // Adjust opacity
             .style("stroke-width", 0.2)  // Adjust stroke width
             .style("stroke", "black")  // Optionally, add stroke color
@@ -237,10 +237,12 @@ d3.json("data-clip-new.json").then(data => {
                     .style("left", (event.pageX + 5) + "px")
                     .style("top", (event.pageY - 28) + "px")
                     .style('font-size', '15px');
-
-                // Update the src attribute of the image element and the text content of the caption element
-                imageElement.attr("src", d.image);
-                captionElement.text(d.caption);
+                // Check if there are any elements in clickedDot
+                if (clickedDot.size == 0) {
+                    // Update the src attribute of the image element and the text content of the caption element
+                    imageElement.attr("src", d.image);
+                    captionElement.text(d.caption);
+                }
             })
             .on("mouseout", function(d) {
                 d3.select(this).style("cursor", "default"); 
@@ -250,11 +252,11 @@ d3.json("data-clip-new.json").then(data => {
             })
             .on("click", function(event, d) {
                 // Set clicked dot to red
-                if (clickedDots.has(d.x + ":" + d.y)) {
-                    clickedDots.delete(d.x + ":" + d.y);
+                if (clickedDot.has(d.x + ":" + d.y)) {
+                    clickedDot.delete(d.x + ":" + d.y);
                     d3.select(this).style("fill", d => z(d.z));
                 } else {
-                    clickedDots.add(d.x + ":" + d.y);
+                    clickedDot.add(d.x + ":" + d.y);
                     d3.select(this).style("fill", "red");
                 }
                 // Prevent event from propagating to svg click listener
@@ -346,7 +348,7 @@ d3.json("data-clip-new.json").then(data => {
 
     // Click listener on the svg to reset dot colors
     svg.on("click", function() {
-        clickedDots.clear();
+        clickedDot.clear();
         scatter.selectAll(".dot").style("fill", d => z(d.z));
     });
 
