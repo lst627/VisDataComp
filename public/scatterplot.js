@@ -255,7 +255,8 @@ d3.json("data-clip-new.json").then(data => {
                 if (clickedDot.has(d.x + ":" + d.y)) {
                     clickedDot.delete(d.x + ":" + d.y);
                     d3.select(this).style("fill", d => z(d.z));
-                } else {
+                } 
+                else if (clickedDot.size == 0) {
                     clickedDot.add(d.x + ":" + d.y);
                     d3.select(this).style("fill", "red");
                 }
